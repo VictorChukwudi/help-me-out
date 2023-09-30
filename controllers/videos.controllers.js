@@ -3,26 +3,31 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const Video = require("../models/video");
 
+const storagePath = `${path.join(__dirname, "./videos")}`;
+
 const saveVideo = async (req, res) => {
   try {
     const { chunkData, video_name } = req.body;
     const user_id = req.session.userId;
-    const filePath = `${path.join(__dirname, "./videos")}/${video_name}.mp4`;
+    const filePath = `${storagePath}/${video_name}.mp4`;
 
+    if (!fs.existsSync(storagePath)) {
+      fs.mkdirSync(storagePath);
+    }
     const videoStream = fs.createWriteStream(filePath, { flags: "a" });
     chunkData.pipe(videoStream);
 
     videoStream.on("finish", () => {
       const video = new Video({
         user_id,
-        video_url,
+        video_url: filePath,
       }).save();
       res.status(200).json({
         status: "success",
         data: {
           video_id: video._id,
           user_id,
-          video_url,
+          video_url: video.video_url,
         },
       });
     });

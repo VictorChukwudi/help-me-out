@@ -19,7 +19,11 @@ const saveVideo = async (req, res) => {
       }).save();
       res.status(200).json({
         status: "success",
-        data: video,
+        data: {
+          video_id: video._id,
+          user_id,
+          video_url,
+        },
       });
     });
 
@@ -37,8 +41,47 @@ const saveVideo = async (req, res) => {
 
 const findVideo = async (req, res) => {
   try {
-  } catch (error) {}
+    const user_id = req.session.userId;
+    const { video_id } = req.params;
+    const video = await Video.findById(video_id);
+    if (!video) {
+      res.status(400);
+      throw new Error("Video not found.");
+    } else {
+      res.status(200).json({
+        status: "success",
+        data: video,
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: "error",
+      msg: error.message,
+    });
+  }
+};
+const findUserVideos = async (req, res) => {
+  try {
+    const user_id = req.session.userId;
+    const videos = await Video.find({ user_id });
+    if (!videos) {
+      res.status(400);
+      throw new Error("Videos not found.");
+    } else {
+      res.status(200).json({
+        status: "success",
+        data: videos,
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: "error",
+      msg: error.message,
+    });
+  }
 };
 module.exports = {
   saveVideo,
+  findVideo,
+  findUserVideos,
 };

@@ -6,6 +6,7 @@ const app = express();
 const port = 5000;
 const connectDB = require("./config/db");
 const videoRoutes = require("./routes/videos.routes");
+const { storagePath } = require("./controllers/videos.controllers");
 
 connectDB();
 app.use(
@@ -13,6 +14,8 @@ app.use(
     origin: "*",
   })
 );
+
+app.use(express.static(storagePath));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 

@@ -1,15 +1,21 @@
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const Video = require("../models/video");
 
+const baseURL =
+  process.env.NODE_ENV == "development"
+    ? "http://localhost:5000"
+    : "https://help-me-backend.onrender.com";
 const storagePath = `${path.join(__dirname, "./videos")}`;
 
 const saveVideo = async (req, res) => {
   try {
     const { chunkData } = req.body;
     const user_id = req.session.userId;
-    const filePath = `${storagePath}//${uuidv4()}-${Date.now()}.mp4`;
+    const fileName = `${uuidv4()}-${Date.now()}.mp4`;
+    const filePath = `${storagePath}/${fileName}`;
 
     if (!fs.existsSync(storagePath)) {
       fs.mkdirSync(storagePath);
@@ -31,7 +37,7 @@ const saveVideo = async (req, res) => {
     videoStream.close();
     const video = await new Video({
       user_id,
-      video_url: filePath,
+      video_url: `${baseURL}/${fileName}`,
     }).save();
 
     res.status(200).json({
@@ -40,11 +46,6 @@ const saveVideo = async (req, res) => {
       user_id,
       video_url: video.video_url,
     });
-
-    // videoStream.on("error", (error) => {
-    //   console.log(error);
-    //   throw new Error("An error occurred when saving video.");
-    // });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -95,6 +96,7 @@ const findUserVideos = async (req, res) => {
   }
 };
 module.exports = {
+  storagePath,
   saveVideo,
   findVideo,
   findUserVideos,

@@ -1,4 +1,6 @@
 const path = require("path");
 
-console.log(path.resolve(__dirname, `./videos`));
+const storagePath = path.resolve(__dirname, `./videos`);
 console.log(__dirname);
+const filePath = `${storagePath}\\asdfghjkkjh-${Date.now()}.mp4`;
+console.log(filePath);

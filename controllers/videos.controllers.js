@@ -7,35 +7,44 @@ const storagePath = `${path.join(__dirname, "./videos")}`;
 
 const saveVideo = async (req, res) => {
   try {
-    const { chunkData, video_name } = req.body;
+    const { chunkData } = req.body;
     const user_id = req.session.userId;
-    const filePath = `${storagePath}/${video_name}.mp4`;
+    const filePath = `${storagePath}\\${uuidv4()}-${Date.now()}.mp4`;
 
     if (!fs.existsSync(storagePath)) {
       fs.mkdirSync(storagePath);
     }
     const videoStream = fs.createWriteStream(filePath, { flags: "a" });
-    chunkData.pipe(videoStream);
+    // chunkData.pipe(videoStream);
 
-    videoStream.on("finish", () => {
-      const video = new Video({
-        user_id,
-        video_url: filePath,
-      }).save();
-      res.status(200).json({
-        status: "success",
-        data: {
-          video_id: video._id,
-          user_id,
-          video_url: video.video_url,
-        },
+    for (const chunk of chunkData) {
+      videoStream.write(chunk, (err) => {
+        if (err) {
+          console.log(err);
+          throw new Error("An error occurred");
+        } else {
+          console.log("video written successfully");
+        }
       });
+    }
+
+    videoStream.close();
+    const video = await new Video({
+      user_id,
+      video_url: filePath,
+    }).save();
+
+    res.status(200).json({
+      status: "success",
+      video_id: video._id,
+      user_id,
+      video_url: video.video_url,
     });
 
-    videoStream.on("error", (error) => {
-      console.log(error);
-      throw new Error("An error occurred when saving video.");
-    });
+    // videoStream.on("error", (error) => {
+    //   console.log(error);
+    //   throw new Error("An error occurred when saving video.");
+    // });
   } catch (error) {
     res.status(500).json({
       status: "error",

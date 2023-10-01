@@ -9,7 +9,7 @@ const saveVideo = async (req, res) => {
   try {
     const { chunkData } = req.body;
     const user_id = req.session.userId;
-    const filePath = `${storagePath}\\${uuidv4()}-${Date.now()}.mp4`;
+    const filePath = `${storagePath}//${uuidv4()}-${Date.now()}.mp4`;
 
     if (!fs.existsSync(storagePath)) {
       fs.mkdirSync(storagePath);

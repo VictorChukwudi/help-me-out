@@ -20,7 +20,7 @@ const getTranscript=async(audioPath)=>{
     })
     if(!response){
         console.log("error occurred");
-        console.error
+        return 'could not fetch transcript'
     }else{
         return response.data.text
     }

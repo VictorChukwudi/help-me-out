@@ -46,7 +46,7 @@ extractAudio(filePath,audioPath)
       video_id: video._id,
       user_id,
       video_url: video.video_url,
-      // transcript:getTranscript(audioPath)
+      transcript:getTranscript(audioPath)
     });
   } catch (error) {
     res.status(500).json({

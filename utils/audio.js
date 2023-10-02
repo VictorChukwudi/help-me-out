@@ -6,6 +6,8 @@ const extractAudio=async(videoPath,audioPath)=>{
     const audio = spawn(path,["-i",videoPath,audioPath])
     audio.on("exit",()=>{
         console.log("audio successfully extracted.");
+        console.log(videoPath)
+        console.log(audioPath)
     })
     audio.on("error",()=>{
         unlink(audioPath)

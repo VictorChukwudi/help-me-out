@@ -20,21 +20,24 @@ const saveVideo = async (req, res) => {
     if (!fs.existsSync(storagePath)) {
       fs.mkdirSync(storagePath);
     }
-    const videoStream = fs.createWriteStream(filePath, { flags: "a" });
-    // chunkData.pipe(videoStream);
+    // const videoStream = fs.createWriteStream(filePath, { flags: "a" });
+    // // chunkData.pipe(videoStream);
 
-    for (const chunk of chunkData) {
-      videoStream.write(chunk, (err) => {
-        if (err) {
-          console.log(err);
-          throw new Error("An error occurred");
-        } else {
-          console.log("video written successfully");
-        }
-      });
-    }
+    // for (const chunk of chunkData) {
+    //   videoStream.write(chunk, (err) => {
+    //     if (err) {
+    //       console.log(err);
+    //       throw new Error("An error occurred");
+    //     } else {
+    //       console.log("video written successfully");
+    //     }
+    //   });
+    // }
 
-    videoStream.close();
+    // videoStream.close();
+    const buffer=chunkData
+    const blob= new Blob([buffer],{type: "video/mp4"})
+    await fs.promises.appendFile(filePath,buffer)
     const video = await new Video({
       user_id,
       video_url: `${baseURL}/${fileName}`,

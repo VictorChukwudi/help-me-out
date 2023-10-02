@@ -15,7 +15,7 @@ const storagePath = `${path.join(__dirname, "./videos")}`;
 
 const saveVideo = async (req, res) => {
   try {
-    const { chunkData } = req.body;
+    const videoChunks=req.files;
     const user_id = req.session.userId;
     const fileName=`${uuidv4()}-${Date.now()}`
     const videoName = `${fileName}.mp4`;
@@ -26,9 +26,13 @@ const saveVideo = async (req, res) => {
       fs.mkdirSync(storagePath);
     }
     
-    const buffer=chunkData
-    const blob= new Blob([buffer],{type: "video/mp4"})
-    await fs.promises.appendFile(filePath,buffer)
+    const videoStream=fs.createWriteStream(filePath,{flags:"a"})
+
+      for(const chunk of videoChunks){
+        await videoStream.write(chunk)
+      }
+      await videoStream.close()
+
     const video = await new Video({
       user_id,
       video_url: `${baseURL}/${videoName}`,

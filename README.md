@@ -24,6 +24,7 @@ https://help-me-backend.onrender.com
         "video_url":"https://help-me-backend.onrender.com/63a9b435-cdfc-49a7-8a54-09147364586f-1696247663109.mp4",
         "transcript": "Some transcript text"
     }
-    ```
+```
+
 ### Note
 To use the **/save-video** endpoint, append it to the base url.

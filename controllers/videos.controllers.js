@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const Video = require("../models/video");
+const {Blob}=require("node:buffer");
+const extractAudio = require("../utils/audio");
+const getTranscript = require("../utils/transcript");
 
 const baseURL =
   process.env.NODE_ENV == "development"
@@ -14,40 +17,32 @@ const saveVideo = async (req, res) => {
   try {
     const { chunkData } = req.body;
     const user_id = req.session.userId;
-    const fileName = `${uuidv4()}-${Date.now()}.mp4`;
-    const filePath = `${storagePath}/${fileName}`;
+    const fileName=`${uuidv4()}-${Date.now()}`
+    const videoName = `${fileName}.mp4`;
+    const filePath = `${storagePath}/${videoName}`;
 
+    const audioPath=`${storagePath}/${fileName}.mp3`
     if (!fs.existsSync(storagePath)) {
       fs.mkdirSync(storagePath);
     }
-    // const videoStream = fs.createWriteStream(filePath, { flags: "a" });
-    // // chunkData.pipe(videoStream);
-
-    // for (const chunk of chunkData) {
-    //   videoStream.write(chunk, (err) => {
-    //     if (err) {
-    //       console.log(err);
-    //       throw new Error("An error occurred");
-    //     } else {
-    //       console.log("video written successfully");
-    //     }
-    //   });
-    // }
-
-    // videoStream.close();
+    
     const buffer=chunkData
     const blob= new Blob([buffer],{type: "video/mp4"})
     await fs.promises.appendFile(filePath,buffer)
     const video = await new Video({
       user_id,
-      video_url: `${baseURL}/${fileName}`,
+      video_url: `${baseURL}/${videoName}`,
     }).save();
+
+    //Extract audio for transcription
+extractAudio(filePath,audioPath)
 
     res.status(200).json({
       status: "success",
       video_id: video._id,
       user_id,
       video_url: video.video_url,
+      // transcript:getTranscript(audioPath)
     });
   } catch (error) {
     res.status(500).json({
